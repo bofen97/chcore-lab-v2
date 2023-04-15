@@ -276,9 +276,12 @@ int map_range_in_pgtbl(void *pgtbl, vaddr_t va, paddr_t pa, size_t len,
                 u32 l3_index = GET_L3_INDEX(va+size);
                 pte_t * cur_pte = &cur_ptp->ent[l3_index];
                 
+                
+                //cur_pte->l3_page.pfn =(pa+size)>>L3_INDEX_SHIFT;
+                cur_pte->pte =pa+size;
+
                 cur_pte->l3_page.is_valid =1;
                 cur_pte->l3_page.is_page =1;
-                cur_pte->l3_page.pfn =(pa+size)>>L3_INDEX_SHIFT;
                 set_pte_flags(cur_pte,flags,USER_PTE);    
         }
         return 0;
@@ -331,11 +334,11 @@ int map_range_in_pgtbl_huge(void *pgtbl, vaddr_t va, paddr_t pa, size_t len,
                 u32 l2_index = GET_L2_INDEX(va+size);
                 pte_t * cur_pte = &cur_ptp->ent[l2_index];
                 
+                //cur_pte->l2_block.pfn =(pa+size)>>L2_INDEX_SHIFT;
+                cur_pte->pte =pa+size;
+                
                 cur_pte->l2_block.is_valid =1;
-                cur_pte->l2_block.pfn =(pa+size)>>L2_INDEX_SHIFT;
-                set_pte_flags(cur_pte,flags,USER_PTE);    
-                kdebug("va : %lx  , ur_pte->l2_block.pfn  :  %lx    , pa :%lx\n" ,
-                         va+size,cur_pte->l2_block.pfn , pa+size);
+                set_pte_flags(cur_pte,flags,USER_PTE); 
         }
         return 0;
         /* LAB 2 TODO 4 END */
