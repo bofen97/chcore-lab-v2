@@ -207,6 +207,19 @@ void free_page_table(void *pgtbl)
         free_pages(l0_ptp);
 }
 
+int query_in_pgtbl(void *pgtbl, vaddr_t va, paddr_t *pa, pte_t **entry);
+
+void query_va_debug(void *pgtbl, vaddr_t va){
+        paddr_t pa = 0 ;
+        pte_t *entry = NULL;
+
+        query_in_pgtbl(pgtbl,va,&pa,&entry);
+
+        kdebug("va : %lx  , pa : %lx ",va,pa);
+        
+
+}
+
 /*
  * Translate a va to pa, and get its pte for the flags
  */

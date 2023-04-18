@@ -67,12 +67,19 @@ int handle_trans_fault(struct vmspace *vmspace, vaddr_t fault_addr)
 
                 fault_addr = ROUND_DOWN(fault_addr, PAGE_SIZE);
                 /* LAB 3 TODO BEGIN */
-
+                pa = get_page_from_pmo(pmo, index);
                 /* LAB 3 TODO END */
                 if (pa == 0) {
                         /* Not committed before. Then, allocate the physical
                          * page. */
                         /* LAB 3 TODO BEGIN */
+                                /* solv1
+                                pa = (paddr_t)virt_to_phys(kmalloc(PAGE_SIZE));
+                                ret = map_range_in_pgtbl(vmspace->pgtbl,fault_addr,pa,PAGE_SIZE,vmr->perm);
+                                */
+                        pmo->start = (paddr_t)virt_to_phys(kmalloc(pmo->start));
+                        ret = map_range_in_pgtbl(vmspace->pgtbl,vmr->start,vmr->pmo->start,pmo->size,   vmr->perm);
+
 
                         /* LAB 3 TODO END */
 #ifdef CHCORE_LAB3_TEST
@@ -101,6 +108,9 @@ int handle_trans_fault(struct vmspace *vmspace, vaddr_t fault_addr)
                          * Repeated mapping operations are harmless.
                          */
                         /* LAB 3 TODO BEGIN */
+                        //ret = map_range_in_pgtbl(vmspace->pgtbl,fault_addr,pa,PAGE_SIZE,vmr->perm);
+                        
+                        ret = map_range_in_pgtbl(vmspace->pgtbl,vmr->start,vmr->pmo->start,pmo->size,vmr->perm);
 
                         /* LAB 3 TODO END */
 #ifdef CHCORE_LAB3_TEST
