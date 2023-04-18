@@ -55,9 +55,10 @@ void init_boot_pt(void)
 
         /* TTBR0_EL1 0-1G */
         boot_ttbr0_l0[GET_L0_INDEX(vaddr)] = ((u64)boot_ttbr0_l1) | IS_TABLE
-                                             | IS_VALID | NG;
+                                             | IS_VALID | NG ;
+
         boot_ttbr0_l1[GET_L1_INDEX(vaddr)] = ((u64)boot_ttbr0_l2) | IS_TABLE
-                                             | IS_VALID | NG;
+                                             | IS_VALID | NG ;
 
         /* Normal memory: PHYSMEM_START ~ PERIPHERAL_BASE */
         /* Map with 2M granularity */
@@ -82,18 +83,42 @@ void init_boot_pt(void)
                         | NG /* Mark as not global */
                         | DEVICE_MEMORY /* Device memory */
                         | IS_VALID;
+
         }
 
         /* TTBR1_EL1 0-1G */
         /* LAB 2 TODO 1 BEGIN */
         /* Step 1: set L0 and L1 page table entry */
 
+        vaddr = KERNEL_VADDR;
+        boot_ttbr1_l0[GET_L0_INDEX(vaddr)] = ((u64)boot_ttbr1_l1) | IS_TABLE
+                                             | IS_VALID | NG ;
+        boot_ttbr1_l1[GET_L1_INDEX(vaddr)] = ((u64)boot_ttbr1_l2) | IS_TABLE
+                                             | IS_VALID | NG ;
 
         /* Step 2: map PHYSMEM_START ~ PERIPHERAL_BASE with 2MB granularity */
-
+        for (; vaddr < KERNEL_VADDR+PERIPHERAL_BASE; vaddr += SIZE_2M) {
+                boot_ttbr1_l2[GET_L2_INDEX(vaddr)] =
+                        (vaddr-KERNEL_VADDR) /* low mem, va = pa */
+                        | UXN /* Unprivileged execute never */
+                        | ACCESSED /* Set access flag */
+                        | NG /* Mark as not global */
+                        | INNER_SHARABLE /* Sharebility */
+                        | NORMAL_MEMORY /* Normal memory */
+                        | IS_VALID ;
+                        
+        }
 
         /* Step 2: map PERIPHERAL_BASE ~ PHYSMEM_END with 2MB granularity */
-
+         for (vaddr = KERNEL_VADDR+PERIPHERAL_BASE; vaddr < KERNEL_VADDR+PHYSMEM_END; vaddr += SIZE_2M) {
+                boot_ttbr1_l2[GET_L2_INDEX(vaddr)] =
+                        (vaddr-KERNEL_VADDR) /* low mem, va = pa */
+                        | UXN /* Unprivileged execute never */
+                        | ACCESSED /* Set access flag */
+                        | NG /* Mark as not global */
+                        | DEVICE_MEMORY /* Device memory */
+                        | IS_VALID ;
+        }
         /* LAB 2 TODO 1 END */
 
         /*
