@@ -61,7 +61,32 @@ struct thread idle_threads[PLAT_CPU_NUM];
 int rr_sched_enqueue(struct thread *thread)
 {
         /* LAB 4 TODO BEGIN */
+        
+        if(thread==NULL || 
+                thread->thread_ctx ==NULL || 
+                thread->thread_ctx->state == TS_READY) return  -EINVAL ;
+        
+        if(thread->thread_ctx->type == TYPE_IDLE ) return 0;
 
+        s32 affinity_cpu_id ;
+        if(thread->thread_ctx->affinity == NO_AFF){
+                affinity_cpu_id = smp_get_cpu_id();
+        }else{
+                affinity_cpu_id = thread->thread_ctx->affinity;
+        }
+                        
+
+        if (affinity_cpu_id >= PLAT_CPU_NUM) return -EINVAL;
+
+
+        struct queue_meta * current_q  = &rr_ready_queue_meta[affinity_cpu_id];
+
+        
+        list_append(&thread->ready_queue_node,&current_q->queue_head);
+
+        current_q->queue_len += 1;
+        thread->thread_ctx->state = TS_READY;
+        thread->thread_ctx->cpuid = affinity_cpu_id;
         /* LAB 4 TODO END */
         return 0;
 }
@@ -75,6 +100,13 @@ int rr_sched_enqueue(struct thread *thread)
 int rr_sched_dequeue(struct thread *thread)
 {
         /* LAB 4 TODO BEGIN */
+        if(thread==NULL || 
+                thread->thread_ctx ==NULL || 
+                thread->thread_ctx->state != TS_READY) return  -EINVAL ;
+
+        list_del(&thread->ready_queue_node);
+        rr_ready_queue_meta[thread->thread_ctx->cpuid].queue_len -= 1;
+        thread->thread_ctx->state = TS_INTER;        
 
         /* LAB 4 TODO END */
         return 0;
@@ -91,6 +123,16 @@ struct thread *rr_sched_choose_thread(void)
 {
         struct thread *thread = NULL;
         /* LAB 4 TODO BEGIN */
+        s32 current_cpu_id = smp_get_cpu_id();
+        struct queue_meta * current_q  = &rr_ready_queue_meta[current_cpu_id];
+        
+
+        thread = list_entry(current_q->queue_head.next,struct thread ,ready_queue_node);
+        
+        if(rr_sched_dequeue(thread)==0) return thread;
+        
+        return &idle_threads[current_cpu_id];
+
 
         /* LAB 4 TODO END */
         return thread;
@@ -103,7 +145,7 @@ struct thread *rr_sched_choose_thread(void)
 static inline void rr_sched_refill_budget(struct thread *target, u32 budget)
 {
         /* LAB 4 TODO BEGIN */
-
+        target->thread_ctx->sc->budget = budget;
         /* LAB 4 TODO END */
 }
 
@@ -125,6 +167,38 @@ static inline void rr_sched_refill_budget(struct thread *target, u32 budget)
 int rr_sched(void)
 {
         /* LAB 4 TODO BEGIN */
+        struct thread *old_thread = current_thread;
+
+        if(old_thread && old_thread->thread_ctx  && old_thread->thread_ctx->type!=TYPE_IDLE){
+
+                if(old_thread->thread_ctx->sc->budget >0 && 
+                old_thread->thread_ctx->state!=TS_WAITING &&
+               old_thread->thread_ctx->thread_exit_state != TE_EXITING ) return 0;
+        
+        
+        if(old_thread->thread_ctx->thread_exit_state == TE_EXITING ){
+                old_thread->thread_ctx->state = TS_EXIT;
+                old_thread->thread_ctx->thread_exit_state ==TE_EXITED;
+        }else if (old_thread->thread_ctx->state!=TS_WAITING)
+        {
+               rr_sched_enqueue(old_thread);
+        }
+        
+        
+        
+        
+        }
+        
+
+                
+        
+        
+        
+
+        old_thread = rr_sched_choose_thread();
+        rr_sched_refill_budget(old_thread,DEFAULT_BUDGET);
+
+        switch_to_thread(old_thread);
 
         /* LAB 4 TODO END */
 

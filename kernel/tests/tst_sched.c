@@ -148,7 +148,7 @@ void tst_sched_param()
                                 BUG_ON(threads[i]->thread_ctx->state
                                        != TS_READY);
                         }
-
+                        // check repeat
                         BUG_ON(!sched_enqueue(threads[0]));
                 }
         }
