@@ -439,13 +439,9 @@ void sys_thread_exit(void)
         printk("\nBack to kernel.\n");
 #endif
         /* LAB 3 TODO BEGIN */
-        int cpuid = smp_get_cpu_id();
-        struct thread* target = current_threads[cpuid];
-
-        target->thread_ctx->state = TS_EXIT;
-        obj_free(target);
-
-        current_threads[cpuid] = NULL;
+       
+        current_thread->thread_ctx->state = TS_EXIT;
+        current_thread = NULL;
         /* LAB 3 TODO END */
         /* Reschedule */
         sched();

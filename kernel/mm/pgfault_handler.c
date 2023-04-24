@@ -73,13 +73,16 @@ int handle_trans_fault(struct vmspace *vmspace, vaddr_t fault_addr)
                         /* Not committed before. Then, allocate the physical
                          * page. */
                         /* LAB 3 TODO BEGIN */
-                                /* solv1
-                                pa = (paddr_t)virt_to_phys(kmalloc(PAGE_SIZE));
-                                ret = map_range_in_pgtbl(vmspace->pgtbl,fault_addr,pa,PAGE_SIZE,vmr->perm);
-                                */
-                        pmo->start = (paddr_t)virt_to_phys(kmalloc(pmo->start));
-                        ret = map_range_in_pgtbl(vmspace->pgtbl,vmr->start,vmr->pmo->start,pmo->size,   vmr->perm);
+                                ///* solv1
+                        pa = (paddr_t)virt_to_phys(kmalloc(PAGE_SIZE));
+                        ret = map_range_in_pgtbl(vmspace->pgtbl,fault_addr,pa,PAGE_SIZE,vmr->perm);
+                               // */
+                       /* solv2
+                                pmo->start = (paddr_t)virt_to_phys(kmalloc(pmo->start));
+                                ret = map_range_in_pgtbl(vmspace->pgtbl,vmr->start,vmr->pmo->start,pmo->size,   vmr->perm);
 
+                       */
+                       
 
                         /* LAB 3 TODO END */
 #ifdef CHCORE_LAB3_TEST
@@ -108,9 +111,10 @@ int handle_trans_fault(struct vmspace *vmspace, vaddr_t fault_addr)
                          * Repeated mapping operations are harmless.
                          */
                         /* LAB 3 TODO BEGIN */
-                        //ret = map_range_in_pgtbl(vmspace->pgtbl,fault_addr,pa,PAGE_SIZE,vmr->perm);
+                        ret = map_range_in_pgtbl(vmspace->pgtbl,fault_addr,pa,PAGE_SIZE,vmr->perm);
                         
-                        ret = map_range_in_pgtbl(vmspace->pgtbl,vmr->start,vmr->pmo->start,pmo->size,vmr->perm);
+
+                        //ret = map_range_in_pgtbl(vmspace->pgtbl,vmr->start,vmr->pmo->start,pmo->size,vmr->perm);
 
                         /* LAB 3 TODO END */
 #ifdef CHCORE_LAB3_TEST
