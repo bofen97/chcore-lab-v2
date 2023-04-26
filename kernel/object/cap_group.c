@@ -245,7 +245,6 @@ int sys_create_cap_group(u64 pid, u64 cap_group_name, u64 name_len, u64 pcid)
         }
         /* LAB 3 TODO BEGIN */
         cap_group_init(new_cap_group,BASE_OBJECT_NUM ,current_cap_group->pid);
-        cap_alloc(new_cap_group, new_cap_group, 0);
 
         /* LAB 3 TODO END */
 
