@@ -109,8 +109,7 @@ void init_boot_pt(void)
                         
         }
 
-        /* Step 2: map PERIPHERAL_BASE ~ PHYSMEM_END with 2MB granularity */
-         for (vaddr = KERNEL_VADDR+PERIPHERAL_BASE; vaddr < KERNEL_VADDR+PHYSMEM_END; vaddr += SIZE_2M) {
+        for (vaddr = KERNEL_VADDR+PERIPHERAL_BASE; vaddr < KERNEL_VADDR+PHYSMEM_END; vaddr += SIZE_2M) {
                 boot_ttbr1_l2[GET_L2_INDEX(vaddr)] =
                         (vaddr-KERNEL_VADDR) /* low mem, va = pa */
                         | UXN /* Unprivileged execute never */
