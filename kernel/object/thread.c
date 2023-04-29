@@ -80,7 +80,32 @@ void thread_deinit(void *thread_ptr)
          | ((PF)&PF_R ? VMR_READ : 0))
 
 #define OFFSET_MASK (0xFFF)
+//void query_va_debug(void *pgtbl, vaddr_t va)
+/*
 
+struct elf_program_header {
+        u32 p_type;
+        u32 p_flags;
+        u64 p_offset;
+        u64 p_vaddr;
+        u64 p_paddr;
+        u64 p_filesz;
+        u64 p_memsz;
+        u64 p_align;
+};
+*/
+
+void print_elf_debug(struct elf_program_header ph){
+        kdebug("p_type   %lx \n", ph.p_type);
+        kdebug("p_flags   %lx \n", ph.p_flags);
+        kdebug("p_offset   %lx \n", ph.p_offset);
+        kdebug("p_vaddr   %lx \n", ph.p_vaddr);
+        kdebug("p_paddr   %lx \n", ph.p_paddr);
+        kdebug("p_filesz   %ld \n", ph.p_filesz);
+        kdebug("p_memsz   %ld \n", ph.p_memsz);
+        kdebug("p_align   %lx \n", ph.p_align);
+        
+}
 /* load binary into some process (cap_group) */
 static u64 load_binary(struct cap_group *cap_group, struct vmspace *vmspace,
                        const char *bin, struct process_metadata *metadata)
@@ -108,9 +133,24 @@ static u64 load_binary(struct cap_group *cap_group, struct vmspace *vmspace,
                 if (elf->p_headers[i].p_type == PT_LOAD) {
                         seg_sz = elf->p_headers[i].p_memsz;
                         p_vaddr = elf->p_headers[i].p_vaddr;
+                        seg_map_sz = ROUND_UP(p_vaddr + seg_sz, PAGE_SIZE) - ROUND_DOWN(p_vaddr, PAGE_SIZE); //2-sides alignment
+                        
                         /* LAB 3 TODO BEGIN */
+                        pmo_cap[i] = create_pmo(seg_map_sz,PMO_DATA,cap_group,&pmo);
 
-                        /* LAB 3 TODO END */
+                        memset((char *)phys_to_virt(pmo->start), 0, pmo->size);
+
+                        memcpy((char*)phys_to_virt(pmo->start)+(p_vaddr - ROUND_DOWN(p_vaddr, PAGE_SIZE)),
+                                        bin + elf->p_headers[i].p_offset, elf->p_headers[i].p_filesz);
+                        
+                        flags = PFLAGS2VMRFLAGS(elf->p_headers[i].p_flags);
+                        
+                        ret = vmspace_map_range(vmspace, ROUND_DOWN(p_vaddr, PAGE_SIZE), seg_map_sz,
+                                flags, pmo);
+                        
+                        print_elf_debug(elf->p_headers[i]);
+                        kdebug("e_entry  %lx \n",elf->header.e_entry);
+                        
                         BUG_ON(ret != 0);
                 }
         }
@@ -399,7 +439,9 @@ void sys_thread_exit(void)
         printk("\nBack to kernel.\n");
 #endif
         /* LAB 3 TODO BEGIN */
-
+       
+        current_thread->thread_ctx->state = TS_EXIT;
+        current_thread = NULL;
         /* LAB 3 TODO END */
         /* Reschedule */
         sched();
@@ -436,7 +478,7 @@ int sys_set_affinity(u64 thread_cap, s32 aff)
         }
 
         /* LAB 4 TODO BEGIN */
-
+        thread->thread_ctx->affinity = aff;
         /* LAB 4 TODO END */
         if (thread_cap != -1)
                 obj_put((void *)thread);
@@ -459,7 +501,7 @@ s32 sys_get_affinity(u64 thread_cap)
         if (thread == NULL)
                 return -ECAPBILITY;
         /* LAB 4 TODO BEGIN */
-
+        aff = thread->thread_ctx->affinity;
         /* LAB 4 TODO END */
 
         if (thread_cap != -1)

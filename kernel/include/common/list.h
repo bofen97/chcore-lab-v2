@@ -36,6 +36,12 @@ static inline void list_add(struct list_head *new, struct list_head *head)
 
 static inline void list_append(struct list_head *new, struct list_head *head)
 {
+        /*
+                before : head->prev head head->next 
+                after  : head->prev new head head->next
+
+                list_append(type(list_head) node , type(list_head) free_list)
+         */
         struct list_head *tail = head->prev;
         return list_add(new, tail);
 }

@@ -74,7 +74,7 @@ void mm_init(void)
 
 #ifdef CHCORE_KERNEL_TEST
         void lab2_test_buddy(void);
-        lab2_test_buddy();
+        //lab2_test_buddy();
 #endif /* CHCORE_KERNEL_TEST */
 
         /* slab alloctor for allocating small memory regions */
