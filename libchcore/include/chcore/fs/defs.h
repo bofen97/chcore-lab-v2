@@ -136,6 +136,7 @@ struct dirent {
 #define MAX_PAGE_CACHE_PAGE	(ACTIVE_LIST_MAX + INACTIVE_LIST_MAX + MAX_PINNED_PAGE)
 
 #define WRITE_BACK_CYCLE	300
+#define ROUND_DOWN(x, n)   ((x) & ~((n)-1))
 
 typedef unsigned long pidx_t;
 

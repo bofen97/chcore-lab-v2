@@ -77,7 +77,12 @@ int fs_creat(const char *path)
 	BUG_ON(*path != '/');
 
 	/* LAB 5 TODO BEGIN */
-
+	tfs_namex(&dirat,&leaf,true);
+	if(strlen(leaf)>0){
+			err = tfs_creat(dirat,leaf,strlen(leaf));
+	}else{
+		// created.
+	}
 	/* LAB 5 TODO END */
 	return 0;
 
@@ -88,6 +93,8 @@ int tmpfs_creat(struct ipc_msg *ipc_msg, struct fs_request *fr)
 	return fs_creat(fr->creat.pathname);
 }
 
+struct dentry *tfs_lookup(struct inode *dir, const char *name,
+				 size_t len);
 
 int tmpfs_unlink(const char *path, int flags)
 {
@@ -100,6 +107,17 @@ int tmpfs_unlink(const char *path, int flags)
 
 	/* LAB 5 TODO BEGIN */
 
+	tfs_namex(&dirat,&leaf,false);
+	err = tfs_remove(dirat,leaf,strlen(leaf));
+	
+	// struct dentry * dent = NULL;
+	// tfs_namex(&dirat,&leaf,false);
+	// if(strlen(leaf)>0){
+
+	// 	dent = tfs_lookup(dirat,leaf,strlen(leaf));
+	// 	hlist_del(&dent->node);
+	// 	del_inode(dent->inode);
+	// }
 	/* LAB 5 TODO END */
 	return err;
 }
@@ -119,7 +137,13 @@ int tmpfs_mkdir(const char *path, mode_t mode)
 	BUG_ON(*path != '/');
 
 	/* LAB 5 TODO BEGIN */
-
+	tfs_namex(&dirat,&leaf,true);
+	if(strlen(leaf)>0){
+			err = tfs_mkdir(dirat,leaf,strlen(leaf));
+			dirat->mode = mode;
+	}else{
+		// created.
+	}
 	/* LAB 5 TODO END */
 	return err;
 }
