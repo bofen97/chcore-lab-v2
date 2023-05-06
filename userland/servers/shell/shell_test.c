@@ -138,17 +138,17 @@ void test_do_complement(){
 }
 
 void shell_test() {
-	// test_stdio();
-	// test_echo();
-	 //mytest_ls();
-	// printf("\nSHELL ");
-	 //test_ls();
-	// printf("\nSHELL ");
-	// test_cat();
-	// printf("\n");
-	// test_readline();
-	// test_run();
-	// test_top();
+	test_stdio();
+	test_echo();
+	mytest_ls();
+	printf("\nSHELL ");
+	test_ls();
+	printf("\nSHELL ");
+	test_cat();
+	printf("\n");
+	test_readline();
+	test_run();
+	test_top();
 	test_do_complement();
 
 	for (int i = 0; i < 1000; i++) {
