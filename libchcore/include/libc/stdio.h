@@ -26,3 +26,4 @@ unsigned long fread(void * destv, unsigned long size, unsigned long nmemb, FILE 
 int fclose(FILE *f);
 int fscanf(FILE * f, const char * fmt, ...);
 int fprintf(FILE * f, const char * fmt, ...);
+int ls(FILE *f,char ** buffer,int *entrys);

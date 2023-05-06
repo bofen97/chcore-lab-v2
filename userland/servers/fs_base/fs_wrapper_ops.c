@@ -78,6 +78,8 @@ int fs_wrapper_open(u64 client_badge, struct ipc_msg *ipc_msg, struct fs_request
 	ret = server_ops.open(path, flags, mode, &vnode_id, &vnode_size, &vnode_type, &vnode_private);
 	if (ret != 0) {
 		fs_debug_error("ret = %d\n", ret);
+		printf("----newfd ret  %d",ret);
+
 		return ret;
 	}
 

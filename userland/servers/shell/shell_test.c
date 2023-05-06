@@ -98,10 +98,9 @@ static int lab5_stdio_file_printf_scanf () {
     pFile = fopen("/myfile2.txt", "w");
     fprintf(pFile, "fprintf %s %d\n", __func__, data);
     fclose(pFile);
-
     int outdata;
     pFile = fopen("/myfile2.txt", "r");
-    fscanf(pFile, "%s %s %d", rbuf, rbuf2, &outdata);
+	fscanf(pFile, "%s %s %d", rbuf, rbuf2, &outdata);
 	fclose(pFile);
 	free(ptr);
 
@@ -112,17 +111,46 @@ static void test_stdio() {
 	TEST_FUNC(lab5_stdio_file_read_write);
 	TEST_FUNC(lab5_stdio_file_printf_scanf);
 }
+//int ls(FILE *f,char ** buffer,int *entrys){
+
+void mytest_ls(){
+	
+    FILE * pFile;
+    pFile = fopen("/", "r");
+	char ** buffer[256];
+	int entrys=0;
+	ls(pFile,&buffer,&entrys);
+	printf(" entrys %d \n",entrys);
+	if(entrys>0){
+		char**p;
+		p = &buffer;
+		for(int j=0;j<entrys;j++){
+			printf(" filename  %s \n",*p);
+			p += sizeof(char*);
+		}
+	}
+}
+void test_do_complement(){
+	char* buff = readline(">");
+	printf("get cmd %s \n" ,buff );
+	printf("cmd len %d \n" ,strlen(buff) );
+	
+}
 
 void shell_test() {
-	test_stdio();
-	test_echo();
-	printf("\nSHELL ");
-	test_ls();
-	printf("\nSHELL ");
-	test_cat();
-	printf("\n");
-	test_readline();
-	test_run();
+	// test_stdio();
+	// test_echo();
+	 //mytest_ls();
+	// printf("\nSHELL ");
+	 //test_ls();
+	// printf("\nSHELL ");
+	// test_cat();
+	// printf("\n");
+	// test_readline();
+	// test_run();
+	// test_top();
+	test_do_complement();
+
 	for (int i = 0; i < 1000; i++) {
         __chcore_sys_yield(); 
 	}		

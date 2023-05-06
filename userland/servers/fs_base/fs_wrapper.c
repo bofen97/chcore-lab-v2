@@ -78,7 +78,7 @@ int fs_wrapper_get_server_entry(u64 client_badge, int fd)
 	/* Stable fd number, need no translating */
 	if (fd == AT_FDROOT)
 		return AT_FDROOT;
-
+	//printf("fd debug: %d \n",fd);
 	/* Validate fd */
 	BUG_ON(fd < 0 || fd > MAX_SERVER_ENTRY_PER_CLIENT);
 

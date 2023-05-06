@@ -31,7 +31,7 @@ int tmpfs_open(char *path, int flags, int mode, unsigned long *vnode_id, size_t 
 
 	BUG_ON(!path);
 	BUG_ON(*path != '/');
-
+	//printf("debug ..... path:%s \n" , path);
 	inode = tfs_open_path((const char *)path);
 	if (inode) {
 		*vnode_id = (unsigned long)inode;
@@ -72,7 +72,7 @@ int fs_creat(const char *path)
 	struct inode *dirat = NULL;
 	const char *leaf = path;
 	int err;
-
+	printf("filename on creat :%s and first ch %c \n",path,*path);
 	BUG_ON(!path);
 	BUG_ON(*path != '/');
 
@@ -80,6 +80,7 @@ int fs_creat(const char *path)
 	tfs_namex(&dirat,&leaf,true);
 	if(strlen(leaf)>0){
 			err = tfs_creat(dirat,leaf,strlen(leaf));
+			return err;
 	}else{
 		// created.
 	}

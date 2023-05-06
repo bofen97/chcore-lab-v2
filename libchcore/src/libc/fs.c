@@ -59,7 +59,7 @@ FILE *fopen(const char * filename, const char * mode) {
     if(ret>=0){
         file->fd = ret;
         fd++;
-        printf("file->fd  %d \n", file->fd);
+        //printf("file->fd  %d \n", file->fd);
         return file;
     }else if(ret== -ENOENT && (strcmp(mode,"w")==0)){
         
@@ -85,7 +85,7 @@ FILE *fopen(const char * filename, const char * mode) {
         if(ret >= 0){
             file->fd = ret;
             fd++;
-            printf("file->fd  %d \n", file->fd);
+            //printf("file->fd  %d \n", file->fd);
             return file;
         }
     }
@@ -156,7 +156,7 @@ int fclose(FILE *f) {
 
 /* Need to support %s and %d. */
 
- u64 token_addr(const char *fmt, va_list ap,char* dest){
+static u64 token_addr(const char *fmt, va_list ap,char* dest){
     u64 addr;
     char buffer[256];
     int i=0;
@@ -278,4 +278,52 @@ int fprintf(FILE * f, const char * fmt, ...) {
 	/* LAB 5 TODO END */
     return 0;
 }
+/*
+struct {
+			int fd;
+			size_t count;
+		} getdents64;
+*/
+int ls(FILE *f,char ** buffer,int *entrys){
 
+    int ret;
+	/* LAB 5 TODO BEGIN */
+    struct ipc_msg *ipc_msg = ipc_create_msg(
+        fs_ipc_struct, sizeof(struct fs_request) + sizeof(char) * 256 * 10, 0);
+	chcore_assert(ipc_msg);
+	struct fs_request * fr = (struct fs_request *)ipc_get_msg_data(ipc_msg);
+    fr->req = FS_REQ_GETDENTS64;
+    fr->getdents64.fd = f->fd;
+    fr->getdents64.count =  256 * 10 ;
+    ret = ipc_call(fs_ipc_struct, ipc_msg);
+    struct dirent *dirp;
+    if (ret>0){
+
+        //printf("ls ret %d \n", ret);
+        dirp = *(struct dirent **)&fr;
+        //printf("ls .. %s \n",dirp->d_name);
+        ret -= dirp->d_reclen;
+        //printf("addr buffer %lx \n", *buffer);
+
+        *buffer = (char*)malloc(256);
+        memcpy(*buffer , dirp->d_name,strlen(dirp->d_name));
+        (*entrys)++;
+        buffer+=sizeof(char*);
+        while(ret >0 ){
+            
+            dirp  = (struct dirent*)((char*)dirp + dirp->d_reclen);
+            //printf("ls .. %s \n",dirp->d_name);
+
+            *buffer = (char*)malloc(256);
+            memcpy(*buffer , dirp->d_name,strlen(dirp->d_name));
+            (*entrys)++;
+            buffer+=sizeof(char*);
+
+            ret -= dirp->d_reclen;
+        }
+    }
+    ipc_destroy_msg(fs_ipc_struct, ipc_msg);
+    return ret;
+
+
+}

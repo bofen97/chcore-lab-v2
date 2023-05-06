@@ -9,4 +9,4 @@ if(CHCORE_FSM_TEST)
     target_compile_options(shell.srv PRIVATE "-DFSM_TEST")
 endif()
 
-
+chcore_install_all_targets()

@@ -22,7 +22,7 @@ char getch()
 {
 	int c;
 	/* LAB 5 TODO BEGIN */
-
+	c = cgetc();
 	/* LAB 5 TODO END */
 
 	return (char) c;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 #endif
 
 	printf("The shell_test finish!\n");
-	
+	while(1){};
 	while (1) {
 		printf("\n");
 		buf = readline("$ ");

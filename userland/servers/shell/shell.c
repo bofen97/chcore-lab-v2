@@ -134,7 +134,31 @@ int do_complement(char *buf, char *complement, int complement_time)
 	int offset;
 
 	/* LAB 5 TODO BEGIN */
+	if(*buf != '/') return -1;
+	size_t buf_len = strlen(buf)-1;
+	if(buf_len <= 0) return -1;
+	
+	FILE * pFile;
+    pFile = fopen("/", "r");
+	char ** buffer[256];
+	int entrys=0;
+	ls(pFile,&buffer,&entrys);
+	if(entrys>0){
+		
+		char**cp;
+	 	cp = &buffer;
+	 	while(entrys--){
+			
+	 		memcpy(scan_buf,*cp,buf_len);
+	 		if(strcmp(buf+complement_time,scan_buf)==0){
 
+	 			memcpy(complement,(*cp)+complement_time,strlen(*cp)-complement_time);
+	 			fclose(pFile);
+	 			return 0;
+	 		};
+	 		cp += sizeof(char*);
+		}
+	 }
 	/* LAB 5 TODO END */
 
 	return r;
@@ -166,6 +190,28 @@ char *readline(const char *prompt)
 
 	/* LAB 5 TODO BEGIN */
 	/* Fill buf and handle tabs with do_complement(). */
+		if(c != 13){
+			if(c != 9 ){
+				putc(c);
+				buf[i++] = c;
+			}else{
+				complement_time = i-1;
+				ret = do_complement(buf,complement,complement_time);
+				if(!ret){
+					memcpy(buf+i,complement,strlen(complement));
+					
+					for(i;i<strlen(buf);i++){
+						putc(buf[i]);
+					}
+					
+				}
+			}
+			
+		}
+		else {
+			printf("\n");
+			break;
+		}
 
 	/* LAB 5 TODO END */
 	}
@@ -181,9 +227,17 @@ int do_top()
 
 void print_file_content(char* path) 
 {
-
 	/* LAB 5 TODO BEGIN */
+	size_t to_read;
+	FILE * pFile;
+    pFile = fopen(path, "r");
+	if(pFile==NULL) return;
 
+	char* destv = (char*)malloc(256);
+	//memset(destv, 0x0, 256);
+	to_read = fread(destv, sizeof(char), 256,pFile);
+	
+	if(to_read>0) printf("%s\n",destv);
 	/* LAB 5 TODO END */
 
 }
@@ -193,7 +247,21 @@ void fs_scan(char *path)
 {
 
 	/* LAB 5 TODO BEGIN */
-
+	FILE * pFile;
+    pFile = fopen(path, "r");
+	char ** buffer[256];
+	int entrys=0;
+	ls(pFile,&buffer,&entrys);
+	if(entrys>0){
+		char**p;
+		p = &buffer;
+		for(int j=0;j<entrys;j++){
+			printf("%s\n",*p);
+			p += sizeof(char*);
+		}
+	}
+	fclose(pFile);
+	printf("\n");
 	/* LAB 5 TODO END */
 }
 
@@ -226,7 +294,9 @@ int do_cat(char *cmdline)
 int do_echo(char *cmdline)
 {
 	/* LAB 5 TODO BEGIN */
-
+	cmdline += 5;
+	printf(cmdline);
+	printf("\n");
 	/* LAB 5 TODO END */
 	return 0;
 }
@@ -278,9 +348,10 @@ int run_cmd(char *cmdline)
 	int cap = 0;
 	/* Hint: Function chcore_procm_spawn() could be used here. */
 	/* LAB 5 TODO BEGIN */
-
+	int pid;
+	pid = chcore_procm_spawn(cmdline, &cap);
 	/* LAB 5 TODO END */
-	return 0;
+	return pid;
 }
 
 
