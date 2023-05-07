@@ -1,3 +1,5 @@
+# all labs passed.
+
 # ChCore Lab
 
 This is the repository of ChCore Lab.
