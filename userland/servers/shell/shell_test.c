@@ -150,6 +150,7 @@ void shell_test() {
 	test_run();
 	test_top();
 	test_do_complement();
+	builtin_cmd("ls /");
 
 	for (int i = 0; i < 1000; i++) {
         __chcore_sys_yield(); 

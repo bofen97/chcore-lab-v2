@@ -78,7 +78,7 @@ void strip_path(struct mount_point_info_node *mpinfo, char* path) {
 
 /* You could add new functions here as you want. */
 /* LAB 5 TODO BEGIN */
-
+static struct mount_point_info_node *mpinfo_tmp = NULL;
 /* LAB 5 TODO END */
 
 
@@ -92,11 +92,12 @@ void fsm_server_dispatch(struct ipc_msg *ipc_msg, u64 client_badge)
 
 	/* You could add code here as you want.*/
 	/* LAB 5 TODO BEGIN */
-
+	
+	struct ipc_msg *mid_ipc_msg ;
+	struct fs_request *mid_fr;
 	/* LAB 5 TODO END */
 
 	spinlock_lock(&fsmlock);
-
 	switch(fr->req) {
 		case FS_REQ_MOUNT:
 			ret = fsm_mount_fs(fr->mount.fs_path, fr->mount.mount_path); // path=(device_name), path2=(mount_point)
@@ -113,7 +114,44 @@ void fsm_server_dispatch(struct ipc_msg *ipc_msg, u64 client_badge)
 			break;
 
 		/* LAB 5 TODO BEGIN */
+		case FS_REQ_OPEN:
+			mpinfo = get_mount_point(fr->open.pathname, strlen(fr->open.pathname));
+			strip_path(mpinfo, fr->open.pathname);
+			mpinfo_tmp = mpinfo;
+    		// creat same size ipc_msg.
+			mid_ipc_msg =  ipc_create_msg(mpinfo->_fs_ipc_struct,ipc_msg->data_len, 0);
+    		chcore_assert(mid_ipc_msg);
+        	mid_fr = (struct fs_request *)ipc_get_msg_data(mid_ipc_msg);
+			
+			memcpy((char*)mid_fr,(char*)fr,ipc_msg->data_len);
+        	ret = ipc_call(mpinfo->_fs_ipc_struct, mid_ipc_msg);
+			memcpy((char*)fr,(char*)mid_fr,ipc_msg->data_len);
+			ipc_destroy_msg(mpinfo->_fs_ipc_struct, mid_ipc_msg);
+			break;
+		case FS_REQ_CLOSE:
+		case FS_REQ_CREAT:
+		case FS_REQ_MKDIR:
+		case FS_REQ_RMDIR:
+		case FS_REQ_UNLINK:
+		case FS_REQ_READ:
+		case FS_REQ_WRITE:
+		case FS_REQ_GET_SIZE:
+		case FS_REQ_LSEEK:
+		case FS_REQ_GETDENTS64:
+			
+			mid_ipc_msg =  ipc_create_msg(mpinfo_tmp->_fs_ipc_struct,ipc_msg->data_len, 0);
+    		chcore_assert(mid_ipc_msg);
+        	mid_fr = (struct fs_request *)ipc_get_msg_data(mid_ipc_msg);
+			
+			memcpy((char*)mid_fr,(char*)fr,ipc_msg->data_len);
+        	ret = ipc_call(mpinfo_tmp->_fs_ipc_struct, mid_ipc_msg);
+			memcpy((char*)fr,(char*)mid_fr,ipc_msg->data_len);
+			ipc_destroy_msg(mpinfo_tmp->_fs_ipc_struct, mid_ipc_msg);
+			
+			break;
 
+
+			
 		/* LAB 5 TODO END */
 
 		default:

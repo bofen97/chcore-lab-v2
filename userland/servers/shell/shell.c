@@ -173,7 +173,7 @@ extern char getch();
 char *readline(const char *prompt)
 {
 	static char buf[BUFLEN];
-
+	memset(buf,0,BUFLEN);
 	int i = 0, j = 0;
 	signed char c = 0;
 	int ret = 0;
@@ -249,6 +249,9 @@ void fs_scan(char *path)
 	/* LAB 5 TODO BEGIN */
 	FILE * pFile;
     pFile = fopen(path, "r");
+	if(pFile==NULL) {
+		printf("Not Found file %s\n",path);
+	}
 	char ** buffer[256];
 	int entrys=0;
 	ls(pFile,&buffer,&entrys);
